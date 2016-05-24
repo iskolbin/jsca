@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="./CA.js"></script>
+	</head>
+	<body>
+		<canvas id="canvasObj" width="640" height="480" style="transform: translateZ(0px)"></canvas>
+		<style>
+			* { margin: 0; padding: 0;}
+			body, html { height:100%; }
+			#canvasObj {
+				position:absolute;
+				width:100%;
+				height:100%;
+				background-color: black;
+			}
+		</style>
+		<script>
+			const cellw = 8;
+			const cellh = 8;
+			const canvas = document.getElementById( "canvasObj" );
+			const context = canvas.getContext("2d");
+			const frameLen = 1000 * (1.0 / 60.0);
+			let w = 640;
+			let h = 480;
+			let forest = null;
+			
+			function init() {
+				w = canvas.width;
+				h = canvas.height;
+				//forest = new CA.Forest( w/cellw, h/cellh, 0.00001, 0.01 );
+				forest = new CA.MultiState( w/cellw, h/cellh, ['red','orange','yellow','green','cyan','blue','purple'] );
+			}
+			
+		
+			window.onload = window.onresize = function() {
+				canvas.width = canvas.offsetWidth;
+				canvas.height = canvas.offsetHeight;
+				init();
+			}
+
+			let predstamp = 0;
+
+			function update( timestamp ) {
+				if ( predstamp === 0 ) {
+					predstamp = timestamp;
+					forest.render( context, cellw, cellh );
+				} else {
+					const dt = timestamp - predstamp;
+					if ( dt >= frameLen ) {
+						//context.fillStyle = "rgba(0,0,0,0.1)";
+						context.clearRect(0,0,w,h);
+						forest.update();
+						forest.render( context, cellw, cellh );
+						predstamp = timestamp;
+					}
+				}
+				
+				window.requestAnimationFrame( update );
+			}
+
+			window.requestAnimationFrame( update );
+		</script>
+	</body>
+</html>
